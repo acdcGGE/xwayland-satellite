@@ -1,0 +1,28 @@
+# Maintainer: Yuri <yuri@localhost>
+# LoongArch port build. Upstream is not packaged in the Arch repos.
+# Source is a git checkout because build.rs uses vergen_gitcl to embed
+# `git describe` output; a plain tarball cannot build.
+pkgname=xwayland-satellite
+pkgver=0.8.3+loong64
+pkgrel=1
+pkgdesc="Rootless Xwayland integration for any Wayland compositor (LoongArch port)"
+arch=('loong64')
+url="https://github.com/Supreeeme/xwayland-satellite"
+license=('MPL-2.0')
+depends=('gcc-libs' 'glibc' 'libxcb' 'xcb-util-cursor' 'xorg-xwayland')
+makedepends=('cargo' 'rust' 'clang' 'pkgconf' 'git')
+options=('!lto')
+source=("git+https://github.com/Supreeeme/xwayland-satellite.git#commit=b83eab900644e4c7c77982ce3d44cb490f0c5e1d")
+sha256sums=('SKIP')
+
+build() {
+  cd xwayland-satellite
+  export CARGO_PROFILE_RELEASE_LTO=off
+  cargo build --release --locked --features systemd
+}
+
+package() {
+  cd xwayland-satellite
+  install -Dm755 target/release/xwayland-satellite "$pkgdir/usr/bin/xwayland-satellite"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
